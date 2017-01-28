@@ -71,6 +71,17 @@ mainpage = """
 </form>
 """
 
+class WelcomeHandler(webapp2.RequestHandler):
+    def get(self):
+        title = "Welcome"
+        display_title = ""
+        username = self.request.get("username")
+        welcome = "<h1>Welcome, " + cgi.escape(username, quote=True) + "!</h1>"
+
+        content = page_header%{"title":title, "display_title":display_title} + welcome + page_footer
+
+        self.response.write(content)
+
 class MainHandler(webapp2.RequestHandler):
     def get(self):
         title = "Signup"
@@ -86,6 +97,28 @@ class MainHandler(webapp2.RequestHandler):
 
         self.response.write(content)
 
+
+    def post(self):
+        title = "Signup"
+        display_title = "Signup"
+        username = self.request.get("username")
+        email = self.request.get("email")
+        password = self.request.get("password")
+        verify = self.request.get("verify")
+        error_username = ""
+        error_password = ""
+        error_verify = ""
+        error_email = ""
+        error = True
+
+        content = page_header%{"title":title, "display_title":display_title} + mainpage%{"username":cgi.escape(username, quote = True), "email":cgi.escape(email, quote = True), "error_username":error_username, "error_password":error_password, "error_verify":error_verify, "error_email":error_email} + page_footer
+
+        if error == False:
+            self.redirect("/welcome?username=" + username)
+        else:
+            self.response.write(content)
+
 app = webapp2.WSGIApplication([
-    ('/', MainHandler)
+    ('/', MainHandler),
+    ('/welcome', WelcomeHandler)
 ], debug=True)
