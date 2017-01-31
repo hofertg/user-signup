@@ -19,7 +19,7 @@ import cgi
 import re
 
 USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
-EMAIL_RE = re.compile(r"^[\S]+@[\S]+.[\S]+$")
+EMAIL_RE = re.compile(r"^[\S]+@[\S]+\.[\S]+$")
 PASS_RE = re.compile(r"^.{3,20}$")
 
 def valid_username(username):
@@ -87,7 +87,7 @@ def buildMainPage(username="",
                 </tr>
                 <tr>
                     <td><label for="email">Email (optional)</label></td>
-                    <td><input name="email" type=text value=%(email)s>
+                    <td><input name="email" type=email value=%(email)s>
                     <span class="error">%(error_email)s</span>
                 </tr>
             </tbody>
