@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{title}}</title>
+    <style type="text/css">
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>
+        <a href="/">{{display_title}}</a>
+    </h1>
+    <form method="post">
+        <table>
+            <tbody>
+                <tr>
+                    <td><label for="username">Username</label></td>
+                    <td><input name="username" type="text" value="{{username}}" required>
+                    <span class="error">{{error_username}}</span>
+                </tr>
+                <tr>
+                    <td><label for="password">Password</label></td>
+                    <td><input name="password" type="password" value="" required>
+                    <span class="error">{{error_password}}</span>
+                </tr>
+                <tr>
+                    <td><label for="verify">Verify Password</label></td>
+                    <td><input name="verify" type="password" value="" required>
+                    <span class="error">{{error_verify}}</span>
+                </tr>
+                <tr>
+                    <td><label for="email">Email (optional)</label></td>
+                    <td><input name="email" type=email value={{email}}>
+                    <span class="error">{{error_email}}</span>
+                </tr>
+            </tbody>
+        </table>
+        <input type="submit">
+    </form>
+</body>
+</html>

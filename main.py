@@ -15,8 +15,13 @@
 # limitations under the License.
 #
 import webapp2
+import os
+import jinja2
 import cgi
 import re
+
+template_dir = os.path.join(os.path.dirname(__file__), 'templates')
+jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir))
 
 USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
 EMAIL_RE = re.compile(r"^[\S]+@[\S]+\.[\S]+$")
@@ -59,64 +64,38 @@ page_footer = """
 """
 
 
-def buildMainPage(username="",
-                 email="",
-                 error_username="",
-                 error_password="",
-                 error_verify="",
-                 error_email=""):
+class Handler(webapp2.RequestHandler):
+    def write(self, *a, **kw):
+        self.response.write(*a, **kw)
 
-    mainpage = """
-    <form method="post">
-        <table>
-            <tbody>
-                <tr>
-                    <td><label for="username">Username</label></td>
-                    <td><input name="username" type="text" value="%(username)s" required>
-                    <span class="error">%(error_username)s</span>
-                </tr>
-                <tr>
-                    <td><label for="password">Password</label></td>
-                    <td><input name="password" type="password" value="" required>
-                    <span class="error">%(error_password)s</span>
-                </tr>
-                <tr>
-                    <td><label for="verify">Verify Password</label></td>
-                    <td><input name="verify" type="password" value="" required>
-                    <span class="error">%(error_verify)s</span>
-                </tr>
-                <tr>
-                    <td><label for="email">Email (optional)</label></td>
-                    <td><input name="email" type=email value=%(email)s>
-                    <span class="error">%(error_email)s</span>
-                </tr>
-            </tbody>
-        </table>
-        <input type="submit">
-    </form>
-    """%{"username":username, "email":email, "error_username":error_username, "error_password":error_password, "error_verify":error_verify, "error_email":error_email}
-    return mainpage
+    def render_str(self, template, **params):
+        t = jinja_env.get_template(template)
+        return t.render(params)
 
+    def render(self, template, **kw):
+        self.write(self.render_str(template, **kw))
 
-class WelcomeHandler(webapp2.RequestHandler):
+class WelcomeHandler(Handler):
     def get(self):
 
         username = self.request.get("username")
-        welcome = "<h1>Welcome, " + cgi.escape(username, quote=True) + "!</h1>"
+        #welcome = "<h1>Welcome, " + cgi.escape(username, quote=True) + "!</h1>"
 
-        content = buildHeader("Welcome", "") + welcome + page_footer
+        #content = buildHeader("Welcome", "") + welcome + page_footer
 
-        self.response.write(content)
+        self.render("welcome_page.html", username = cgi.escape(username, quote = True), title = "Welcome")
 
 
-class MainHandler(webapp2.RequestHandler):
+class MainHandler(Handler):
     def get(self):
         title = "Signup"
         display_title = "Signup"
 
-        content = buildHeader() + buildMainPage() + page_footer
+        self.render("signup_page.html", title = "Signup", display_title = "Signup")
 
-        self.response.write(content)
+        #content = buildHeader() + buildMainPage() + page_footer
+
+        #self.write(content)
 
 
     def post(self):
@@ -152,12 +131,20 @@ class MainHandler(webapp2.RequestHandler):
             error = True
             error_email = "That's not a valid email"
 
-        content = buildHeader() + buildMainPage(cgi.escape(username, quote=True), cgi.escape(email, quote=True), error_username, error_password, error_verify, error_email) + page_footer
+        #content = buildHeader() + buildMainPage(cgi.escape(username, quote=True), cgi.escape(email, quote=True), error_username, error_password, error_verify, error_email) + page_footer
 
         if error == False:
             self.redirect("/welcome?username=" + username)
         else:
-            self.response.write(content)
+            self.render("signup_page.html",
+                        title = "Signup",
+                        display_title = "Signup",
+                        username = cgi.escape(username, quote=True),
+                        email = cgi.escape(email, quote=True),
+                        error_username = error_username,
+                        error_password = error_password,
+                        error_verify = error_verify,
+                        error_email = error_email)
 
 app = webapp2.WSGIApplication([
     ('/', MainHandler),
