@@ -1,17 +1,6 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{{title}}</title>
-    <style type="text/css">
-        .error {
-            color: red;
-        }
-    </style>
-</head>
-<body>
-    <h1>
-        <a href="/">{{display_title}}</a>
-    </h1>
+{% extends "base.html" %}
+
+{% block content %}
     <form method="post">
         <table>
             <tbody>
@@ -39,5 +28,4 @@
         </table>
         <input type="submit">
     </form>
-</body>
-</html>
+{% endblock %}

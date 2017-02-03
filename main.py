@@ -17,11 +17,11 @@
 import webapp2
 import os
 import jinja2
-import cgi
 import re
 
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
-jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir))
+jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape = True)
+
 
 USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
 EMAIL_RE = re.compile(r"^[\S]+@[\S]+\.[\S]+$")
@@ -37,33 +37,6 @@ def valid_email(email):
     return EMAIL_RE.match(email)
 
 
-#html header setting error color and title
-def buildHeader(title = "Signup", display_title="Signup"):
-    page_header = """
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>%(title)s</title>
-        <style type="text/css">
-            .error {
-                color: red;
-            }
-        </style>
-    </head>
-    <body>
-        <h1>
-            <a href="/">%(display_title)s</a>
-        </h1>
-    """%{"title":title, "display_title":display_title}
-    return page_header
-
-# html boilerplate for the bottom of every page
-page_footer = """
-</body>
-</html>
-"""
-
-
 class Handler(webapp2.RequestHandler):
     def write(self, *a, **kw):
         self.response.write(*a, **kw)
@@ -75,32 +48,23 @@ class Handler(webapp2.RequestHandler):
     def render(self, template, **kw):
         self.write(self.render_str(template, **kw))
 
+
 class WelcomeHandler(Handler):
     def get(self):
 
         username = self.request.get("username")
-        #welcome = "<h1>Welcome, " + cgi.escape(username, quote=True) + "!</h1>"
 
-        #content = buildHeader("Welcome", "") + welcome + page_footer
-
-        self.render("welcome_page.html", username = cgi.escape(username, quote = True), title = "Welcome")
+        self.render("welcome_page.html", username = username, title = "Welcome")
 
 
 class MainHandler(Handler):
     def get(self):
-        title = "Signup"
-        display_title = "Signup"
 
         self.render("signup_page.html", title = "Signup", display_title = "Signup")
 
-        #content = buildHeader() + buildMainPage() + page_footer
-
-        #self.write(content)
-
 
     def post(self):
-        title = "Signup"
-        display_title = "Signup"
+
         username = self.request.get("username")
         email = self.request.get("email")
         password = self.request.get("password")
@@ -131,7 +95,6 @@ class MainHandler(Handler):
             error = True
             error_email = "That's not a valid email"
 
-        #content = buildHeader() + buildMainPage(cgi.escape(username, quote=True), cgi.escape(email, quote=True), error_username, error_password, error_verify, error_email) + page_footer
 
         if error == False:
             self.redirect("/welcome?username=" + username)
@@ -139,12 +102,13 @@ class MainHandler(Handler):
             self.render("signup_page.html",
                         title = "Signup",
                         display_title = "Signup",
-                        username = cgi.escape(username, quote=True),
-                        email = cgi.escape(email, quote=True),
+                        username = username,
+                        email = email,
                         error_username = error_username,
                         error_password = error_password,
                         error_verify = error_verify,
                         error_email = error_email)
+
 
 app = webapp2.WSGIApplication([
     ('/', MainHandler),
